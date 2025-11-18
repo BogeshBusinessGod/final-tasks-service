@@ -4,20 +4,11 @@ import (
 	"context"
 	"final/internal/repository/postgres/sqlc"
 
-	"final/internal/repository/postgres"
 	tsk1 "final/pkg/proto/sync/final/v1"
 	"github.com/jackc/pgx/v5/pgtype"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
-
-// глобальный экземпляр репозитория
-var taskRepo *postgres.Postgres
-
-// InitTaskRepository — инициализация репозитория
-func InitTaskRepository(r *postgres.Postgres) {
-	taskRepo = r
-}
 
 func (s *service) CreateTask(ctx context.Context, req *tsk1.CreateTaskRequest) (*tsk1.CreateTaskResponse, error) {
 	if err := req.ValidateAll(); err != nil {
