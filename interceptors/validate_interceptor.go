@@ -23,7 +23,6 @@ func WithValidation(logger *log.Logger) grpc.UnaryServerInterceptor {
 			return nil, status.Errorf(codes.InvalidArgument, "not valid proto message")
 		}
 
-		// Если тип реализует Validate(), вызываем его
 		if v, ok := protoMsg.(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				logger.Warn("validation failed",
@@ -34,7 +33,6 @@ func WithValidation(logger *log.Logger) grpc.UnaryServerInterceptor {
 			}
 		}
 
-		// Всё ок — продолжаем
 		return handler(ctx, req)
 	}
 }

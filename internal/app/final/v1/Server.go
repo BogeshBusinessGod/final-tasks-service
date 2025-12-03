@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"final/interceptors"
+	tsk1 "final/pkg/proto/sync/final-boss/v1"
 	"fmt"
 	"net"
 	"net/http"
@@ -11,8 +12,6 @@ import (
 	"final/internal/config"
 	"final/internal/service"
 	log "final/internal/utils/observability"
-
-	tsk1 "final/pkg/proto/sync/final/v1"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -22,7 +21,7 @@ import (
 type Server struct {
 	cfg *config.Config
 	tsk1.UnimplementedTasksServer
-	svc        service.Service // интерфейс, а не *service.Service
+	svc        service.Service
 	logger     *log.Logger
 	grpcServer *grpc.Server
 	httpServer *http.Server
@@ -38,7 +37,6 @@ func NewServer(cfg *config.Config, logger *log.Logger, svc service.Service) *Ser
 }
 
 func (s *Server) Listen() error {
-	// ✅ создаём gRPC-сервер с цепочкой интерцепторов
 	s.grpcServer = grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptors.LoggingInterceptor(s.logger),
@@ -46,11 +44,9 @@ func (s *Server) Listen() error {
 		),
 	)
 
-	// Регистрируем Tasks-сервис
 	tsk1.RegisterTasksServer(s.grpcServer, s)
 	reflection.Register(s.grpcServer)
 
-	// ✅ HTTP Gateway
 	gwMux := runtime.NewServeMux()
 	if err := tsk1.RegisterTasksHandlerServer(context.Background(), gwMux, s); err != nil {
 		return fmt.Errorf("gateway register error: %w", err)
@@ -58,6 +54,16 @@ func (s *Server) Listen() error {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", gwMux)
+
+	// --- Swagger UI ---
+	mux.Handle("/swagger-ui/", http.StripPrefix("/swagger-ui/",
+		http.FileServer(http.Dir("./static/swagger-ui")),
+	))
+
+	// --- Swagger JSON ---
+	mux.Handle("/swagger/", http.StripPrefix("/swagger",
+		http.FileServer(http.Dir("docs/sync/final")),
+	))
 
 	s.httpServer = &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.cfg.HTTP.Port),
@@ -70,14 +76,12 @@ func (s *Server) Listen() error {
 	}
 	s.listener = lis
 
-	// ✅ Запуск gRPC
 	go func() {
 		if err := s.grpcServer.Serve(lis); err != nil {
 			s.logger.Error("gRPC serve failed", err)
 		}
 	}()
 
-	// ✅ Запуск HTTP
 	go func() {
 		if err := s.httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			s.logger.Error("HTTP gateway failed", err)

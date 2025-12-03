@@ -22,18 +22,6 @@ service Tasks {
     };
   }
 
-  rpc GetTask (GetTaskRequest) returns (GetTaskResponse) {
-    option (google.api.http) = {
-      get: "/v1/tasks/{id}"
-    };
-  }
-
-  rpc UpdateTask (UpdateTaskRequest) returns (UpdateTaskResponse) {
-    option (google.api.http) = {
-      put: "/v1/tasks/{id}"
-      body: "*"
-    };
-  }
 
   rpc DeleteTask (DeleteTaskRequest) returns (DeleteTaskResponse) {
     option (google.api.http) = {
@@ -41,7 +29,7 @@ service Tasks {
     };
   }
 
-  rpc MarkDone (DoneTaskRequest) returns (DoneTaskResponse) {
+  rpc DoneTask (DoneTaskRequest) returns (DoneTaskResponse) {
     option (google.api.http) = {
       put: "/v1/tasks/{id}/done"
       body: "*"
@@ -77,26 +65,6 @@ message ListTasksRequest {
 
 message ListTasksResponse {
   repeated Task tasks = 1;
-}
-
-// --- Get ---
-message GetTaskRequest {
-  int64 id = 1 [(validate.rules).int64 = {gt: 0}];
-}
-
-message GetTaskResponse {
-  Task task = 1;
-}
-
-// --- Update ---
-message UpdateTaskRequest {
-  int64 id = 1 [(validate.rules).int64 = {gt: 0}];
-  string title = 2 [(validate.rules).string = {min_len: 1, max_len: 100}];
-  string content = 3 [(validate.rules).string = {max_len: 1000}];
-}
-
-message UpdateTaskResponse {
-  Task task = 1;
 }
 
 // --- Delete ---

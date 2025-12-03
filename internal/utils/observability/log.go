@@ -25,6 +25,7 @@ func convertToSlogLevel(level Level) slog.Level {
 	case LevelError:
 		return slog.LevelError
 	default:
+
 		return slog.LevelInfo
 
 	}

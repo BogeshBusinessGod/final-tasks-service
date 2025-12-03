@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	tsk1 "final/pkg/proto/sync/final/v1"
+	tsk1 "final/pkg/proto/sync/final-boss/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -12,7 +12,6 @@ func (s *service) DeleteTask(ctx context.Context, req *tsk1.DeleteTaskRequest) (
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	// просто меняем статус на deleted, без возврата самой задачи
 	_, err := s.DB.UpdateTaskStatus(ctx, req.GetId(), "deleted")
 	if err != nil {
 		return &tsk1.DeleteTaskResponse{

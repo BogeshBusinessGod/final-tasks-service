@@ -2,8 +2,7 @@ package v1
 
 import (
 	"context"
-	tsk1 "final/pkg/proto/sync/final/v1"
-	// ← должен быть именно этот
+	tsk1 "final/pkg/proto/sync/final-boss/v1"
 )
 
 func (s *Server) DoneTask(ctx context.Context, req *tsk1.DoneTaskRequest) (*tsk1.DoneTaskResponse, error) {

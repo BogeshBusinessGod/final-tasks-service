@@ -20,16 +20,17 @@ tasks:
 
   run:
     desc: "Запустить сервис локально"
+    env:
+      GRPC_PORT: "50051"
+      POSTGRES_HOST: "localhost"
+      POSTGRES_PORT: "{{.PG_PORT}}"
+      POSTGRES_USER: "{{.PG_USER}}"
+      POSTGRES_DB: "{{.PG_DB}}"
+      POSTGRES_PASSWORD: "{{.PG_PASSWORD}}"
+      POSTGRES_SSLMODE: "disable"
     cmds:
-      - >
-        GRPC_PORT=50051 \
-        POSTGRES_HOST=localhost \
-        POSTGRES_PORT={{.PG_PORT}} \
-        POSTGRES_USER={{.PG_USER}} \
-        POSTGRES_DB={{.PG_DB}} \
-        POSTGRES_PASSWORD={{.PG_PASSWORD}} \
-        POSTGRES_SSLMODE=disable \
-        go run ./cmd/notes/main.go
+      - go run ./cmd/notes/main.go
+
 
   # ---------- Protobuf ----------
 
@@ -91,19 +92,24 @@ tasks:
   sqlc:
     desc: "Сгенерировать Go-код из SQL через sqlc (в докере)"
     cmds:
-      - docker run --rm -v {{.PWD}}:/src -w /src sqlc/sqlc:{{.SQLC_VER}} generate
+      - docker run --rm -v {{.TASKFILE_DIR}}:/src -w /src sqlc/sqlc:{{.SQLC_VER}} generate
 
-  # ---------- Postgres локально через docker ----------
+
+    # ---------- Postgres локально через docker ----------
 
   test-db-up:
     desc: "Поднять Postgres в Docker"
     cmds:
       - >
-        docker run -e POSTGRES_USER={{.PG_USER}} -e POSTGRES_PASSWORD={{.PG_PASSWORD}} \
-        -p {{.PG_PORT}}:5432 --name mock-test-db -d \
-        postgres:15 postgres -c log_statement=all || docker start mock-test-db
-      - >
-        docker exec mock-test-db timeout 20s bash -c "until pg_isready -d {{.PG_DB}} -U {{.PG_USER}}; do sleep 0.5; done"
+        docker run -d \
+          --name mock-test-db \
+          -e POSTGRES_USER={{.PG_USER}} \
+          -e POSTGRES_PASSWORD={{.PG_PASSWORD}} \
+          -e POSTGRES_DB={{.PG_DB}} \
+          -p {{.PG_PORT}}:5432 \
+          postgres:15 \
+          -c log_statement=all || docker start mock-test-db
+      - docker exec mock-test-db bash -c "until pg_isready -U {{.PG_USER}}; do sleep 0.5; done"
       - sleep 0.5
 
   test-db-down:

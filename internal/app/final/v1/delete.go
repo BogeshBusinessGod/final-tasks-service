@@ -2,7 +2,7 @@ package v1
 
 import (
 	"context"
-	tsk1 "final/pkg/proto/sync/final/v1"
+	tsk1 "final/pkg/proto/sync/final-boss/v1"
 )
 
 func (s *Server) DeleteTask(ctx context.Context, req *tsk1.DeleteTaskRequest) (*tsk1.DeleteTaskResponse, error) {
@@ -12,3 +12,5 @@ func (s *Server) DeleteTask(ctx context.Context, req *tsk1.DeleteTaskRequest) (*
 	}
 	return resp, nil
 }
+
+//penis

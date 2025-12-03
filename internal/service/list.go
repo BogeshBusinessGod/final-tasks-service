@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	tsk1 "final/pkg/proto/sync/final/v1"
+	tsk1 "final/pkg/proto/sync/final-boss/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

@@ -4,7 +4,7 @@ import (
 	"context"
 	"final/internal/repository"
 	log "final/internal/utils/observability"
-	tsk1 "final/pkg/proto/sync/final/v1"
+	tsk1 "final/pkg/proto/sync/final-boss/v1"
 )
 
 type Service interface {
@@ -20,5 +20,7 @@ type service struct {
 }
 
 func NewService(logger *log.Logger, DB repository.DB) Service {
-	return &service{logger: logger, DB: DB}
+	return &service{
+		logger: logger,
+		DB:     DB}
 }

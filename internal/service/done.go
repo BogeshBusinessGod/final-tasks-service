@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	tsk1 "final/pkg/proto/sync/final/v1"
+	tsk1 "final/pkg/proto/sync/final-boss/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -19,8 +19,7 @@ func (s *service) DoneTask(ctx context.Context, req *tsk1.DoneTaskRequest) (*tsk
 
 	return &tsk1.DoneTaskResponse{
 		Task: &tsk1.Task{
-			Id: task.ID,
-
+			Id:      task.ID,
 			Title:   task.Title,
 			Content: task.Content.String,
 			Status:  task.Status,

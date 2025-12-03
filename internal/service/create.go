@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"final/internal/repository/postgres/sqlc"
+	tsk1 "final/pkg/proto/sync/final-boss/v1"
 
-	tsk1 "final/pkg/proto/sync/final/v1"
 	"github.com/jackc/pgx/v5/pgtype"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

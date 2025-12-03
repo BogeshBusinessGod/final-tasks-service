@@ -19,7 +19,7 @@ import (
 type Postgres struct {
 	connPool *pgxpool.Pool
 	queries  *sqlc.Queries
-	logger   *log.Logger // 🟢 теперь твой логгер
+	logger   *log.Logger
 	cfg      *config.Postgres
 }
 
