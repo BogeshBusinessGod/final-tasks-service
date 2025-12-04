@@ -13,5 +13,4 @@ func (s *Server) DeleteTask(ctx context.Context, req *tsk1.DeleteTaskRequest) (*
 	return resp, nil
 }
 
-//penis
-//хуяка
+//олоололол
