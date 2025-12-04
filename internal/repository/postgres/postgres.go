@@ -6,7 +6,7 @@ import (
 	"final/internal/repository/postgres/sqlc"
 	log "final/internal/utils/observability"
 	"fmt"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres" // 👈 обязательный импорт драйвера
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jackc/pgx/v5/pgxpool"
 
