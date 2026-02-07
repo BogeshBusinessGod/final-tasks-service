@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package tasks.v1;
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+option go_package = "final/pkg/proto/sync/final/v1;tsk1";
+
+// --- Сервис Tasks ---
+service Tasks {
+  rpc CreateTask (CreateTaskRequest) returns (CreateTaskResponse) {
+    option (google.api.http) = {
+      post: "/v1/tasks"
+      body: "*"
+    };
+  }
+
+  rpc ListTasks (ListTasksRequest) returns (ListTasksResponse) {
+    option (google.api.http) = {
+      get: "/v1/tasks"
+    };
+  }
+
+
+  rpc DeleteTask (DeleteTaskRequest) returns (DeleteTaskResponse) {
+    option (google.api.http) = {
+      delete: "/v1/tasks/{id}"
+    };
+  }
+
+  rpc DoneTask (DoneTaskRequest) returns (DoneTaskResponse) {
+    option (google.api.http) = {
+      put: "/v1/tasks/{id}/done"
+      body: "*"
+    };
+  }
+}
+
+// --- Сообщения ---
+
+message Task {
+  int64 id = 1;
+  string title = 2;
+  string content = 3;
+  bool done = 4;
+  string status = 5;
+}
+
+// --- Create ---
+message CreateTaskRequest {
+  string title = 1 [(validate.rules).string = {min_len: 1, max_len: 100}];
+  string content = 2 [(validate.rules).string = {max_len: 1000}];
+}
+
+message CreateTaskResponse {
+  Task task = 1;
+}
+
+// --- List ---
+message ListTasksRequest {
+  // если 0 — вернуть все
+  int64 id = 1 [(validate.rules).int64 = {gte: 0}];
+}
+
+message ListTasksResponse {
+  repeated Task tasks = 1;
+}
+
+// --- Delete ---
+message DeleteTaskRequest {
+  int64 id = 1 [(validate.rules).int64 = {gt: 0}];
+}
+
+message DeleteTaskResponse {
+  bool success = 1;
+}
+
+// --- Done ---
+message DoneTaskRequest {
+  int64 id = 1 [(validate.rules).int64 = {gt: 0}];
+}
+
+message DoneTaskResponse {
+  Task task = 1;
+}
