@@ -1,0 +1,93 @@
+# ---------------------------------------
+# Go
+# ---------------------------------------
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go modules / workspace
+go.sum
+go.work
+go.work.sum
+
+# Go build artifacts
+/bin/
+/build/
+/dist/
+/final
+main
+
+# Task / tmp artifacts
+tmp/
+.migrate/
+*.pid
+
+# ---------------------------------------
+# IDE / Editor
+# ---------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---------------------------------------
+# OS-specific
+# ---------------------------------------
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------
+# Environment & Secrets
+# ---------------------------------------
+.env
+.env.*
+*.key
+*.crt
+*.pem
+/secrets/
+/config/local.yaml
+/config/dev.yaml
+
+# ---------------------------------------
+# Proto / gRPC generated files
+# ---------------------------------------
+*.pb.go
+*.pb.validate.go
+*.pb.gw.go
+*.swagger.json
+
+# Buf / protoc caches
+.buf/
+buf.gen.yaml.lock
+
+# Third-party proto deps (локальные зависимости)
+third_party/
+googleapis/
+protoc-gen-validate/
+
+# ---------------------------------------
+# Swagger / OpenAPI docs
+# ---------------------------------------
+/swagger-ui/
+/docs/swagger/
+/web/swagger-ui/
+/web/docs/
+
+# ---------------------------------------
+# Docker / build cache
+# ---------------------------------------
+*.tar
+*.log
+.cache/
+*.bak
+*.tmp
+*.lock
+coverage.out
+
+# Docker build artifacts
+/docker/
+/tmp-build/

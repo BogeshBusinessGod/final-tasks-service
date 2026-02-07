@@ -1,0 +1,143 @@
+version: "3"
+
+vars:
+  SQLC_VER: "1.25.0"
+  PG_PORT: "5432"
+  PG_USER: "postgres"
+  PG_PASSWORD: "postgres"
+  PG_DB: "tasks"
+
+  PROTO_DIR: "./api"
+  OUT_DIR: "./pkg/proto"
+  VALIDATE_DIR: "./third_party/protoc-gen-validate"
+  GOOGLEAPIS_DIR: "./third_party/googleapis"
+
+  DB_URL: "postgres://{{.PG_USER}}:{{.PG_PASSWORD}}@localhost:{{.PG_PORT}}/{{.PG_DB}}?sslmode=disable"
+
+tasks:
+
+  # ---------- Сервис ----------
+
+  run:
+    desc: "Запустить сервис локально"
+    cmds:
+      - >
+        GRPC_PORT=50051 \
+        POSTGRES_HOST=localhost \
+        POSTGRES_PORT={{.PG_PORT}} \
+        POSTGRES_USER={{.PG_USER}} \
+        POSTGRES_DB={{.PG_DB}} \
+        POSTGRES_PASSWORD={{.PG_PASSWORD}} \
+        POSTGRES_SSLMODE=disable \
+        go run ./cmd/notes/main.go
+
+  # ---------- Protobuf ----------
+
+  proto-get:
+    desc: "Склонировать validate и googleapis"
+    cmds:
+      - mkdir -p third_party
+      - |
+        if [ ! -d "{{.VALIDATE_DIR}}" ]; then
+          git clone https://github.com/envoyproxy/protoc-gen-validate.git {{.VALIDATE_DIR}}
+        else
+          echo "✅ protoc-gen-validate уже скачан"
+        fi
+      - |
+        if [ ! -d "{{.GOOGLEAPIS_DIR}}" ]; then
+          git clone https://github.com/googleapis/googleapis.git {{.GOOGLEAPIS_DIR}}
+        else
+          echo "✅ googleapis уже скачан"
+        fi
+
+  proto-install:
+    desc: "Установить protoc плагины (go, grpc, validate, gateway)"
+    cmds:
+      - go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      - go install github.com/envoyproxy/protoc-gen-validate@latest
+      - go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+      - go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
+
+  proto-gen:
+    desc: "Сгенерировать .pb, .grpc.pb, .validate.pb и gateway файлы"
+    cmds:
+      - mkdir -p {{.OUT_DIR}}
+      - >
+        protoc \
+          -I {{.PROTO_DIR}} \
+          -I {{.VALIDATE_DIR}} \
+          -I {{.GOOGLEAPIS_DIR}} \
+          --go_out={{.OUT_DIR}} --go_opt=paths=source_relative \
+          --go-grpc_out={{.OUT_DIR}} --go-grpc_opt=paths=source_relative \
+          --grpc-gateway_out={{.OUT_DIR}} --grpc-gateway_opt=paths=source_relative \
+          --validate_out=lang=go,paths=source_relative:{{.OUT_DIR}} \
+          {{.PROTO_DIR}}/sync/final-boss/v1/tasks.proto
+
+  swagger-gen:
+    desc: "Сгенерировать Swagger (OpenAPI)"
+    cmds:
+      - mkdir -p docs/swagger
+      - >
+        protoc \
+          -I {{.PROTO_DIR}} \
+          -I {{.VALIDATE_DIR}} \
+          -I {{.GOOGLEAPIS_DIR}} \
+          --openapiv2_out=docs/swagger --openapiv2_opt logtostderr=true \
+          {{.PROTO_DIR}}/sync/final-boss/v1/tasks.proto
+
+  # ---------- SQLC ----------
+
+  sqlc:
+    desc: "Сгенерировать Go-код из SQL через sqlc (в докере)"
+    cmds:
+      - docker run --rm -v {{.PWD}}:/src -w /src sqlc/sqlc:{{.SQLC_VER}} generate
+
+  # ---------- Postgres локально через docker ----------
+
+  test-db-up:
+    desc: "Поднять Postgres в Docker"
+    cmds:
+      - >
+        docker run -e POSTGRES_USER={{.PG_USER}} -e POSTGRES_PASSWORD={{.PG_PASSWORD}} \
+        -p {{.PG_PORT}}:5432 --name mock-test-db -d \
+        postgres:15 postgres -c log_statement=all || docker start mock-test-db
+      - >
+        docker exec mock-test-db timeout 20s bash -c "until pg_isready -d {{.PG_DB}} -U {{.PG_USER}}; do sleep 0.5; done"
+      - sleep 0.5
+
+  test-db-down:
+    desc: "Остановить Postgres"
+    cmds:
+      - docker stop mock-test-db || true
+
+  test-db-delete:
+    desc: "Удалить контейнер Postgres"
+    cmds:
+      - docker rm mock-test-db || true
+
+  test-db-exec:
+    desc: "Подключиться в psql к тестовой БД"
+    cmds:
+      - docker exec -it mock-test-db psql -U {{.PG_USER}}
+
+  # ---------- Миграции ----------
+
+  migrate-create:
+    desc: "Создать новую миграцию"
+    cmds:
+      - migrate create -ext sql -dir migrations/postgres {{.name}}
+    requires:
+      vars: [name]
+
+  migrate-up:
+    desc: "Применить миграции"
+    cmds:
+      - >
+        migrate -path ./migrations/postgres -database "{{.DB_URL}}" up
+
+  migrate-down:
+    desc: "Откатить миграции"
+    cmds:
+      - >
+        migrate -path ./migrations/postgres -database "{{.DB_URL}}" down -all
