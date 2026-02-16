@@ -8,111 +8,139 @@ package sqlc
 import (
 	"context"
 
+	"final/internal/models"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createTask = `-- name: CreateTask :one
-INSERT INTO tasks (title, content, status, done, created_at)
-VALUES ($1, $2, $3, $4, NOW())
-    RETURNING id, user_id, title, content, status, done, created_at, updated_at, deleted_at
+INSERT INTO tasks (title, content, status)
+VALUES ($1, $2, $3)
+    RETURNING id, title, content, status, created_at, updated_at
 `
 
 type CreateTaskParams struct {
-	Title   string      `json:"title"`
-	Content pgtype.Text `json:"content"`
-	Status  string      `json:"status"`
-	Done    bool        `json:"done"`
+	Title   string            `json:"title"`
+	Content string            `json:"content"`
+	Status  models.TaskStatus `json:"status"`
 }
 
-func (q *Queries) CreateTask(ctx context.Context, arg *CreateTaskParams) (*Task, error) {
-	row := q.db.QueryRow(ctx, createTask,
-		arg.Title,
-		arg.Content,
-		arg.Status,
-		arg.Done,
-	)
-	var i Task
+type CreateTaskRow struct {
+	ID        int64              `json:"id"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Status    models.TaskStatus  `json:"status"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) CreateTask(ctx context.Context, arg *CreateTaskParams) (*CreateTaskRow, error) {
+	row := q.db.QueryRow(ctx, createTask, arg.Title, arg.Content, arg.Status)
+	var i CreateTaskRow
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
 		&i.Title,
 		&i.Content,
 		&i.Status,
-		&i.Done,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return &i, err
 }
 
-const deleteTask = `-- name: DeleteTask :exec
-UPDATE tasks
-SET deleted_at = NOW()
+const deleteTask = `-- name: DeleteTask :execrows
+DELETE FROM tasks
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteTask, id)
-	return err
+func (q *Queries) DeleteTask(ctx context.Context, id int64) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteTask, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
-const doneTask = `-- name: DoneTask :exec
+const doneTask = `-- name: DoneTask :execrows
 UPDATE tasks
-SET done = TRUE,
-    status = 'done'
+SET status = $2,
+    updated_at = NOW()
 WHERE id = $1
 `
 
-func (q *Queries) DoneTask(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, doneTask, id)
-	return err
+type DoneTaskParams struct {
+	ID     int64             `json:"id"`
+	Status models.TaskStatus `json:"status"`
 }
 
-const getTaskByID = `-- name: GetTaskByID :one
-SELECT id, user_id, title, content, status, done, created_at, updated_at, deleted_at FROM tasks WHERE id = $1 LIMIT 1
+func (q *Queries) DoneTask(ctx context.Context, arg *DoneTaskParams) (int64, error) {
+	result, err := q.db.Exec(ctx, doneTask, arg.ID, arg.Status)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const getTask = `-- name: GetTask :one
+SELECT id, title, content, status, created_at, updated_at
+FROM tasks
+WHERE id = $1
+    LIMIT 1
 `
 
-func (q *Queries) GetTaskByID(ctx context.Context, id int64) (*Task, error) {
-	row := q.db.QueryRow(ctx, getTaskByID, id)
-	var i Task
+type GetTaskRow struct {
+	ID        int64              `json:"id"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Status    models.TaskStatus  `json:"status"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) GetTask(ctx context.Context, id int64) (*GetTaskRow, error) {
+	row := q.db.QueryRow(ctx, getTask, id)
+	var i GetTaskRow
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
 		&i.Title,
 		&i.Content,
 		&i.Status,
-		&i.Done,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return &i, err
 }
 
 const listTasks = `-- name: ListTasks :many
-SELECT id, user_id, title, content, status, done, created_at, updated_at, deleted_at FROM tasks ORDER BY created_at DESC
+SELECT id, title, content, status, created_at, updated_at
+FROM tasks
+ORDER BY created_at DESC
 `
 
-func (q *Queries) ListTasks(ctx context.Context) ([]*Task, error) {
+type ListTasksRow struct {
+	ID        int64              `json:"id"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Status    models.TaskStatus  `json:"status"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) ListTasks(ctx context.Context) ([]*ListTasksRow, error) {
 	rows, err := q.db.Query(ctx, listTasks)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Task
+	var items []*ListTasksRow
 	for rows.Next() {
-		var i Task
+		var i ListTasksRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
 			&i.Title,
 			&i.Content,
 			&i.Status,
-			&i.Done,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}

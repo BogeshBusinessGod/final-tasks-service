@@ -5,19 +5,20 @@
 package sqlc
 
 import (
+	"final/internal/models"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Task struct {
-	ID        int64              `json:"id"`
-	UserID    pgtype.Int8        `json:"user_id"`
-	Title     string             `json:"title"`
-	Content   pgtype.Text        `json:"content"`
-	Status    string             `json:"status"`
-	Done      bool               `json:"done"`
+	ID     int64       `json:"id"`
+	UserID pgtype.Int8 `json:"user_id"`
+	Title  string      `json:"title"`
+	// Task description (plain text). Empty string means no description.
+	Content string `json:"content"`
+	// Task lifecycle status.
+	Status    models.TaskStatus  `json:"status"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type User struct {

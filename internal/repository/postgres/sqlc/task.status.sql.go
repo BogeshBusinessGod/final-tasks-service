@@ -7,6 +7,9 @@ package sqlc
 
 import (
 	"context"
+
+	"final/internal/models"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const updateTaskStatus = `-- name: UpdateTaskStatus :one
@@ -14,27 +17,33 @@ UPDATE tasks
 SET status = $2,
     updated_at = NOW()
 WHERE id = $1
-    RETURNING id, user_id, title, content, status, done, created_at, updated_at, deleted_at
+    RETURNING id, title, content, status, created_at, updated_at
 `
 
 type UpdateTaskStatusParams struct {
-	ID     int64  `json:"id"`
-	Status string `json:"status"`
+	ID     int64             `json:"id"`
+	Status models.TaskStatus `json:"status"`
 }
 
-func (q *Queries) UpdateTaskStatus(ctx context.Context, arg *UpdateTaskStatusParams) (*Task, error) {
+type UpdateTaskStatusRow struct {
+	ID        int64              `json:"id"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Status    models.TaskStatus  `json:"status"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) UpdateTaskStatus(ctx context.Context, arg *UpdateTaskStatusParams) (*UpdateTaskStatusRow, error) {
 	row := q.db.QueryRow(ctx, updateTaskStatus, arg.ID, arg.Status)
-	var i Task
+	var i UpdateTaskStatusRow
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
 		&i.Title,
 		&i.Content,
 		&i.Status,
-		&i.Done,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return &i, err
 }

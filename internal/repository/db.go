@@ -6,10 +6,11 @@ import (
 )
 
 type DB interface {
-	CreateTask(ctx context.Context, arg sqlc.CreateTaskParams) (*sqlc.Task, error)
-	GetTaskByID(ctx context.Context, id int64) (*sqlc.Task, error)
-	ListTasks(ctx context.Context, id int64) ([]*sqlc.Task, error)
-	DoneTask(ctx context.Context, id int64) error
-	DeleteTask(ctx context.Context, id int64) error
-	UpdateTaskStatus(ctx context.Context, id int64, status string) (*sqlc.Task, error)
+	CreateTask(ctx context.Context, arg sqlc.CreateTaskParams) (*sqlc.CreateTaskRow, error)
+
+	ListTasks(ctx context.Context) ([]*sqlc.ListTasksRow, error)
+	GetTask(ctx context.Context, id int64) (*sqlc.GetTaskRow, error)
+
+	DoneTask(ctx context.Context, id int64) (bool, error)
+	DeleteTask(ctx context.Context, id int64) (bool, error)
 }

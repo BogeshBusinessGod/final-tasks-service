@@ -54,7 +54,3 @@ func NewPostgres(ctx context.Context, logger *log.Logger, cfg *config.Postgres) 
 }
 
 func (p *Postgres) Close() { p.connPool.Close() }
-
-func (p *Postgres) Q() *sqlc.Queries {
-	return p.queries
-}

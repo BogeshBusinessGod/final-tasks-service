@@ -16,7 +16,7 @@ import (
 
 func main() {
 	logger := log.NewLogger(log.LevelDebug)
-	logger.Info("🟢 Starting TasksService...")
+	logger.Info("Starting TasksService...")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -38,12 +38,12 @@ func main() {
 	}
 	defer db.Close()
 
-	svc := service.NewService(logger, db)
+	svc := service.NewService(db)
 	server := v1.NewServer(cfg, logger, svc)
 
 	go func() {
 		if err := server.Listen(); err != nil {
-			logger.Error("server listen failed", err)
+			logger.Error("failed to listen service", err)
 			os.Exit(1)
 		}
 	}()
@@ -55,8 +55,8 @@ func main() {
 	defer cancelShutdown()
 
 	if err := server.Stop(shutdownCtx); err != nil {
-		logger.Error("server stop error", err)
+		logger.Error("failed to stop server", err)
 	}
 
-	logger.Info("✅ Server stopped cleanly")
+	logger.Info("Server stopped cleanly")
 }

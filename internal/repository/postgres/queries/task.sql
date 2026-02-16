@@ -1,21 +1,27 @@
 -- name: CreateTask :one
-INSERT INTO tasks (title, content, status, done, created_at)
-VALUES ($1, $2, $3, $4, NOW())
-    RETURNING *;
+INSERT INTO tasks (title, content, status)
+VALUES ($1, $2, $3)
+    RETURNING id, title, content, status, created_at, updated_at;
 
--- name: GetTaskByID :one
-SELECT * FROM tasks WHERE id = $1 LIMIT 1;
+-- name: GetTask :one
+SELECT id, title, content, status, created_at, updated_at
+FROM tasks
+WHERE id = $1
+    LIMIT 1;
 
 -- name: ListTasks :many
-SELECT * FROM tasks ORDER BY created_at DESC;
+SELECT id, title, content, status, created_at, updated_at
+FROM tasks
+ORDER BY created_at DESC;
 
--- name: DoneTask :exec
+
+
+-- name: DoneTask :execrows
 UPDATE tasks
-SET done = TRUE,
-    status = 'done'
+SET status = $2,
+    updated_at = NOW()
 WHERE id = $1;
 
--- name: DeleteTask :exec
-UPDATE tasks
-SET deleted_at = NOW()
+-- name: DeleteTask :execrows
+DELETE FROM tasks
 WHERE id = $1;

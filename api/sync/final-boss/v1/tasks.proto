@@ -7,8 +7,13 @@ import "google/api/annotations.proto";
 
 option go_package = "final/pkg/proto/sync/final/v1;tsk1";
 
-// --- Сервис Tasks ---
 service Tasks {
+  rpc GetTask (GetTaskRequest) returns (GetTaskResponse) {
+    option (google.api.http) = {
+      get: "/v1/tasks/{id}"
+    };
+  }
+
   rpc CreateTask (CreateTaskRequest) returns (CreateTaskResponse) {
     option (google.api.http) = {
       post: "/v1/tasks"
@@ -21,6 +26,7 @@ service Tasks {
       get: "/v1/tasks"
     };
   }
+
 
 
   rpc DeleteTask (DeleteTaskRequest) returns (DeleteTaskResponse) {
@@ -37,17 +43,23 @@ service Tasks {
   }
 }
 
-// --- Сообщения ---
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_NEW = 1;
+  STATUS_IN_PROGRESS = 2;
+  STATUS_DONE = 3;
+  STATUS_DELETED = 4;
+  STATUS_ERROR = 5;
+}
 
 message Task {
   int64 id = 1;
   string title = 2;
   string content = 3;
   bool done = 4;
-  string status = 5;
+  Status status = 5;
 }
 
-// --- Create ---
 message CreateTaskRequest {
   string title = 1 [(validate.rules).string = {min_len: 1, max_len: 100}];
   string content = 2 [(validate.rules).string = {max_len: 1000}];
@@ -57,17 +69,20 @@ message CreateTaskResponse {
   Task task = 1;
 }
 
-// --- List ---
-message ListTasksRequest {
-  // если 0 — вернуть все
-  int64 id = 1 [(validate.rules).int64 = {gte: 0}];
-}
+message ListTasksRequest {}
 
 message ListTasksResponse {
   repeated Task tasks = 1;
 }
 
-// --- Delete ---
+message GetTaskRequest {
+  int64 id = 1 [(validate.rules).int64 = {gt: 0}];
+}
+
+message GetTaskResponse {
+  Task task = 1;
+}
+
 message DeleteTaskRequest {
   int64 id = 1 [(validate.rules).int64 = {gt: 0}];
 }
@@ -76,11 +91,13 @@ message DeleteTaskResponse {
   bool success = 1;
 }
 
-// --- Done ---
 message DoneTaskRequest {
   int64 id = 1 [(validate.rules).int64 = {gt: 0}];
 }
 
 message DoneTaskResponse {
-  Task task = 1;
+  bool success = 1;
 }
+
+
+//сделал list tasks- показать все задачи, get task - одна по айди 

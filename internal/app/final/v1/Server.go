@@ -18,6 +18,22 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
+func registerSwagger(mux *http.ServeMux) {
+	// Swagger UI
+	mux.Handle(swaggerUIRoutePrefix,
+		http.StripPrefix(swaggerUIRoutePrefix,
+			http.FileServer(http.Dir(swaggerUIFSDir)),
+		),
+	)
+
+	// Swagger JSON
+	mux.Handle(swaggerJSONRoutePrefix,
+		http.StripPrefix("/swagger",
+			http.FileServer(http.Dir(swaggerJSONFSDir)),
+		),
+	)
+}
+
 type Server struct {
 	cfg *config.Config
 	tsk1.UnimplementedTasksServer
@@ -55,16 +71,8 @@ func (s *Server) Listen() error {
 	mux := http.NewServeMux()
 	mux.Handle("/", gwMux)
 
-	// --- Swagger UI ---
-	mux.Handle("/swagger-ui/", http.StripPrefix("/swagger-ui/",
-		http.FileServer(http.Dir("./static/swagger-ui")),
-	))
-
-	// --- Swagger JSON ---
-	mux.Handle("/swagger/", http.StripPrefix("/swagger",
-		http.FileServer(http.Dir("docs/sync/final")),
-	))
-
+	registerSwagger(mux)
+	
 	s.httpServer = &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.cfg.HTTP.Port),
 		Handler: mux,
