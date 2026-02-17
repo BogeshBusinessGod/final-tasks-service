@@ -1,0 +1,4 @@
+version: task
+deps:
+  - buf.build/googleapis/googleapis
+  - buf.build/bufbuild/validate
