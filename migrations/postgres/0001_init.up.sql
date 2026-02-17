@@ -14,6 +14,10 @@ CREATE TABLE users (
 -- ======================
 -- Таблица задач
 -- ======================
+--content - содержание заметки, сами записи.
+-- условно title - задача(купить машину)
+-- content - последовательность действий для решения задачи(взять налик, поехать в автосалон и т.д)
+
 CREATE TABLE tasks (
                        id         BIGSERIAL PRIMARY KEY,
                        user_id    BIGINT REFERENCES users(id) ON DELETE CASCADE,

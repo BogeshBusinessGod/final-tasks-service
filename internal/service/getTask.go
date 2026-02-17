@@ -18,7 +18,7 @@ func (s *service) GetTask(ctx context.Context, req *tsk1.GetTaskRequest) (*tsk1.
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "task not found")
 		}
-		return nil, status.Error(codes.Internal, "failed to get task")
+		return nil, status.Error(codes.Internal, "failed to get the task")
 	}
 
 	return &tsk1.GetTaskResponse{

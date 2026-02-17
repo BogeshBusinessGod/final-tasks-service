@@ -1,4 +1,4 @@
-package v1
+package task
 
 import (
 	"context"
@@ -19,14 +19,12 @@ import (
 )
 
 func registerSwagger(mux *http.ServeMux) {
-	// Swagger UI
 	mux.Handle(swaggerUIRoutePrefix,
 		http.StripPrefix(swaggerUIRoutePrefix,
 			http.FileServer(http.Dir(swaggerUIFSDir)),
 		),
 	)
 
-	// Swagger JSON
 	mux.Handle(swaggerJSONRoutePrefix,
 		http.StripPrefix("/swagger",
 			http.FileServer(http.Dir(swaggerJSONFSDir)),
@@ -72,7 +70,7 @@ func (s *Server) Listen() error {
 	mux.Handle("/", gwMux)
 
 	registerSwagger(mux)
-	
+
 	s.httpServer = &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.cfg.HTTP.Port),
 		Handler: mux,

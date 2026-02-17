@@ -16,7 +16,7 @@ func (s *service) DeleteTask(ctx context.Context, req *tsk1.DeleteTaskRequest) (
 	}
 	if !deleted {
 		return &tsk1.DeleteTaskResponse{Success: false},
-			status.Error(codes.NotFound, "task not found")
+			status.Error(codes.NotFound, "failed to find the task")
 	}
 	return &tsk1.DeleteTaskResponse{Success: true}, nil
 }

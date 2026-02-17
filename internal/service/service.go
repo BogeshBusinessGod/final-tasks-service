@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"final/internal/repository"
-	log "final/internal/utils/observability"
 	tsk1 "final/pkg/proto/sync/final-boss/v1"
 )
 
@@ -16,8 +15,7 @@ type Service interface {
 }
 
 type service struct {
-	logger *log.Logger
-	DB     repository.DB
+	DB repository.DB
 }
 
 func NewService(DB repository.DB) Service {

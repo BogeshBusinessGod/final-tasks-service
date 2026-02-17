@@ -16,7 +16,7 @@ func (s *service) DoneTask(ctx context.Context, req *tsk1.DoneTaskRequest) (*tsk
 	}
 	if !done {
 		return &tsk1.DoneTaskResponse{Success: false},
-			status.Error(codes.NotFound, "task not found")
+			status.Error(codes.NotFound, "failed to find the task")
 	}
 	return &tsk1.DoneTaskResponse{Success: true}, nil
 

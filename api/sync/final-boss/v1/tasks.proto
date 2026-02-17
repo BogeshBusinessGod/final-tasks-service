@@ -5,25 +5,25 @@ package tasks.v1;
 import "validate/validate.proto";
 import "google/api/annotations.proto";
 
-option go_package = "final/pkg/proto/sync/final/v1;tsk1";
+option go_package = "final/pkg/proto/sync/final/task;tsk1";
 
 service Tasks {
   rpc GetTask (GetTaskRequest) returns (GetTaskResponse) {
     option (google.api.http) = {
-      get: "/v1/tasks/{id}"
+      get: "/task/tasks/{id}"
     };
   }
 
   rpc CreateTask (CreateTaskRequest) returns (CreateTaskResponse) {
     option (google.api.http) = {
-      post: "/v1/tasks"
+      post: "/task/tasks"
       body: "*"
     };
   }
 
   rpc ListTasks (ListTasksRequest) returns (ListTasksResponse) {
     option (google.api.http) = {
-      get: "/v1/tasks"
+      get: "/task/tasks"
     };
   }
 
@@ -31,13 +31,13 @@ service Tasks {
 
   rpc DeleteTask (DeleteTaskRequest) returns (DeleteTaskResponse) {
     option (google.api.http) = {
-      delete: "/v1/tasks/{id}"
+      delete: "/task/tasks/{id}"
     };
   }
 
   rpc DoneTask (DoneTaskRequest) returns (DoneTaskResponse) {
     option (google.api.http) = {
-      put: "/v1/tasks/{id}/done"
+      put: "/task/tasks/{id}/done"
       body: "*"
     };
   }

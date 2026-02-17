@@ -1,4 +1,4 @@
-package v1
+package task
 
 const (
 	swaggerUIRoutePrefix = "/swagger-ui/"

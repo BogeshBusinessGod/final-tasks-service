@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"final/internal/app/final/v1"
+	"final/internal/app/final/task"
 	"final/internal/config"
 	"final/internal/repository/postgres"
 	"final/internal/service"
@@ -39,7 +39,7 @@ func main() {
 	defer db.Close()
 
 	svc := service.NewService(db)
-	server := v1.NewServer(cfg, logger, svc)
+	server := task.NewServer(cfg, logger, svc)
 
 	go func() {
 		if err := server.Listen(); err != nil {
