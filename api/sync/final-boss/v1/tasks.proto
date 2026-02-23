@@ -48,8 +48,7 @@ enum Status {
   STATUS_NEW = 1;
   STATUS_IN_PROGRESS = 2;
   STATUS_DONE = 3;
-  STATUS_DELETED = 4;
-  STATUS_ERROR = 5;
+  STATUS_ERROR = 4;
 }
 
 message Task {
@@ -88,7 +87,6 @@ message DeleteTaskRequest {
 }
 
 message DeleteTaskResponse {
-  bool success = 1;
 }
 
 message DoneTaskRequest {

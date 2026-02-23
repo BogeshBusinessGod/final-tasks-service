@@ -13,8 +13,7 @@ func TaskStatusToProto(s models.TaskStatus) tsk1.Status {
 		return tsk1.Status_STATUS_IN_PROGRESS
 	case models.StatusDone:
 		return tsk1.Status_STATUS_DONE
-	case models.StatusDeleted:
-		return tsk1.Status_STATUS_DELETED
+
 	case models.StatusError:
 		return tsk1.Status_STATUS_ERROR
 	default:

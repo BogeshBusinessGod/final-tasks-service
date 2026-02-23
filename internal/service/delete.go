@@ -9,14 +9,10 @@ import (
 )
 
 func (s *service) DeleteTask(ctx context.Context, req *tsk1.DeleteTaskRequest) (*tsk1.DeleteTaskResponse, error) {
-	deleted, err := s.DB.DeleteTask(ctx, req.GetId())
+	err := s.DB.DeleteTask(ctx, req.GetId())
 	if err != nil {
-		return &tsk1.DeleteTaskResponse{Success: false},
-			status.Error(codes.Internal, "failed to delete task")
+		return nil, status.Error(codes.Internal, "failed to delete task")
 	}
-	if !deleted {
-		return &tsk1.DeleteTaskResponse{Success: false},
-			status.Error(codes.NotFound, "failed to find the task")
-	}
-	return &tsk1.DeleteTaskResponse{Success: true}, nil
+
+	return &tsk1.DeleteTaskResponse{}, nil
 }

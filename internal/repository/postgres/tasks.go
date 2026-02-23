@@ -62,10 +62,15 @@ func (p *Postgres) DoneTask(ctx context.Context, id int64) (bool, error) {
 	return rows > 0, nil
 }
 
-func (p *Postgres) DeleteTask(ctx context.Context, id int64) (bool, error) {
-	rows, err := p.queries.DeleteTask(ctx, id) // rows int64
+var ErrTaskNotFound = errors.New("failed to find the task")
+
+func (p *Postgres) DeleteTask(ctx context.Context, id int64) error {
+	rows, err := p.queries.DeleteTask(ctx, id)
 	if err != nil {
-		return false, err
+		return err
 	}
-	return rows > 0, nil
+	if rows == 0 {
+		return ErrTaskNotFound
+	}
+	return nil
 }
