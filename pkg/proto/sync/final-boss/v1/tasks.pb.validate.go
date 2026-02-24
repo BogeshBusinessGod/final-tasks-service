@@ -62,8 +62,6 @@ func (m *Task) validate(all bool) error {
 
 	// no validation rules for Content
 
-	// no validation rules for Done
-
 	// no validation rules for Status
 
 	if len(errors) > 0 {
@@ -1222,7 +1220,7 @@ func (m *DoneTaskResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Success
+	// no validation rules for Status
 
 	if len(errors) > 0 {
 		return DoneTaskResponseMultiError(errors)

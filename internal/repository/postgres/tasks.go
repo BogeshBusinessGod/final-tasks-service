@@ -47,7 +47,7 @@ func (p *Postgres) ListTasks(ctx context.Context) ([]*sqlc.ListTasksRow, error) 
 	return res, nil
 }
 
-func (p *Postgres) DoneTask(ctx context.Context, id int64) (bool, error) {
+func (p *Postgres) DoneTask(ctx context.Context, id int64) error {
 	p.logger.Debug("repo DoneTask", "id", id, "status", models.StatusDone)
 
 	rows, err := p.queries.DoneTask(ctx, &sqlc.DoneTaskParams{
@@ -56,10 +56,14 @@ func (p *Postgres) DoneTask(ctx context.Context, id int64) (bool, error) {
 	})
 	if err != nil {
 		p.logger.Error("repo DoneTask failed", err, "id", id)
-		return false, err
+		return err
 	}
 
-	return rows > 0, nil
+	if rows == 0 {
+		return ErrTaskNotFound
+	}
+
+	return nil
 }
 
 var ErrTaskNotFound = errors.New("failed to find the task")

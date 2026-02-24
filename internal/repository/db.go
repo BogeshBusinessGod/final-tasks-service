@@ -11,6 +11,6 @@ type DB interface {
 	ListTasks(ctx context.Context) ([]*sqlc.ListTasksRow, error)
 	GetTask(ctx context.Context, id int64) (*sqlc.GetTaskRow, error)
 
-	DoneTask(ctx context.Context, id int64) (bool, error)
+	DoneTask(ctx context.Context, id int64) error
 	DeleteTask(ctx context.Context, id int64) error
 }

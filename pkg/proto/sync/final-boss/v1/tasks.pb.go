@@ -28,9 +28,8 @@ type Status int32
 const (
 	Status_STATUS_UNSPECIFIED Status = 0
 	Status_STATUS_NEW         Status = 1
-	Status_STATUS_IN_PROGRESS Status = 2
-	Status_STATUS_DONE        Status = 3
-	Status_STATUS_ERROR       Status = 4
+	Status_STATUS_DONE        Status = 2
+	Status_STATUS_ERROR       Status = 3
 )
 
 // Enum value maps for Status.
@@ -38,16 +37,14 @@ var (
 	Status_name = map[int32]string{
 		0: "STATUS_UNSPECIFIED",
 		1: "STATUS_NEW",
-		2: "STATUS_IN_PROGRESS",
-		3: "STATUS_DONE",
-		4: "STATUS_ERROR",
+		2: "STATUS_DONE",
+		3: "STATUS_ERROR",
 	}
 	Status_value = map[string]int32{
 		"STATUS_UNSPECIFIED": 0,
 		"STATUS_NEW":         1,
-		"STATUS_IN_PROGRESS": 2,
-		"STATUS_DONE":        3,
-		"STATUS_ERROR":       4,
+		"STATUS_DONE":        2,
+		"STATUS_ERROR":       3,
 	}
 )
 
@@ -83,8 +80,7 @@ type Task struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
-	Done          bool                   `protobuf:"varint,4,opt,name=done,proto3" json:"done,omitempty"`
-	Status        Status                 `protobuf:"varint,5,opt,name=status,proto3,enum=tasks.v1.Status" json:"status,omitempty"`
+	Status        Status                 `protobuf:"varint,4,opt,name=status,proto3,enum=tasks.v1.Status" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -138,13 +134,6 @@ func (x *Task) GetContent() string {
 		return x.Content
 	}
 	return ""
-}
-
-func (x *Task) GetDone() bool {
-	if x != nil {
-		return x.Done
-	}
-	return false
 }
 
 func (x *Task) GetStatus() Status {
@@ -544,7 +533,7 @@ func (x *DoneTaskRequest) GetId() int64 {
 
 type DoneTaskResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Status        Status                 `protobuf:"varint,1,opt,name=status,proto3,enum=tasks.v1.Status" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -579,24 +568,23 @@ func (*DoneTaskResponse) Descriptor() ([]byte, []int) {
 	return file_sync_final_boss_v1_tasks_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *DoneTaskResponse) GetSuccess() bool {
+func (x *DoneTaskResponse) GetStatus() Status {
 	if x != nil {
-		return x.Success
+		return x.Status
 	}
-	return false
+	return Status_STATUS_UNSPECIFIED
 }
 
 var File_sync_final_boss_v1_tasks_proto protoreflect.FileDescriptor
 
 const file_sync_final_boss_v1_tasks_proto_rawDesc = "" +
 	"\n" +
-	"\x1esync/final-boss/v1/tasks.proto\x12\btasks.v1\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\x84\x01\n" +
+	"\x1esync/final-boss/v1/tasks.proto\x12\btasks.v1\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"p\n" +
 	"\x04Task\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\tR\acontent\x12\x12\n" +
-	"\x04done\x18\x04 \x01(\bR\x04done\x12(\n" +
-	"\x06status\x18\x05 \x01(\x0e2\x10.tasks.v1.StatusR\x06status\"X\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\x12(\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x10.tasks.v1.StatusR\x06status\"X\n" +
 	"\x11CreateTaskRequest\x12\x1f\n" +
 	"\x05title\x18\x01 \x01(\tB\t\xfaB\x06r\x04\x10\x01\x18dR\x05title\x12\"\n" +
 	"\acontent\x18\x02 \x01(\tB\b\xfaB\x05r\x03\x18\xe8\aR\acontent\"8\n" +
@@ -613,16 +601,15 @@ const file_sync_final_boss_v1_tasks_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x02id\"\x14\n" +
 	"\x12DeleteTaskResponse\"*\n" +
 	"\x0fDoneTaskRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x02id\",\n" +
-	"\x10DoneTaskResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess*k\n" +
+	"\x02id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x02id\"<\n" +
+	"\x10DoneTaskResponse\x12(\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x10.tasks.v1.StatusR\x06status*S\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +
-	"STATUS_NEW\x10\x01\x12\x16\n" +
-	"\x12STATUS_IN_PROGRESS\x10\x02\x12\x0f\n" +
-	"\vSTATUS_DONE\x10\x03\x12\x10\n" +
-	"\fSTATUS_ERROR\x10\x042\xe5\x03\n" +
+	"STATUS_NEW\x10\x01\x12\x0f\n" +
+	"\vSTATUS_DONE\x10\x02\x12\x10\n" +
+	"\fSTATUS_ERROR\x10\x032\xe5\x03\n" +
 	"\x05Tasks\x12X\n" +
 	"\aGetTask\x12\x18.tasks.v1.GetTaskRequest\x1a\x19.tasks.v1.GetTaskResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/task/tasks/{id}\x12_\n" +
 	"\n" +
@@ -665,21 +652,22 @@ var file_sync_final_boss_v1_tasks_proto_depIdxs = []int32{
 	1,  // 1: tasks.v1.CreateTaskResponse.task:type_name -> tasks.v1.Task
 	1,  // 2: tasks.v1.ListTasksResponse.tasks:type_name -> tasks.v1.Task
 	1,  // 3: tasks.v1.GetTaskResponse.task:type_name -> tasks.v1.Task
-	6,  // 4: tasks.v1.Tasks.GetTask:input_type -> tasks.v1.GetTaskRequest
-	2,  // 5: tasks.v1.Tasks.CreateTask:input_type -> tasks.v1.CreateTaskRequest
-	4,  // 6: tasks.v1.Tasks.ListTasks:input_type -> tasks.v1.ListTasksRequest
-	8,  // 7: tasks.v1.Tasks.DeleteTask:input_type -> tasks.v1.DeleteTaskRequest
-	10, // 8: tasks.v1.Tasks.DoneTask:input_type -> tasks.v1.DoneTaskRequest
-	7,  // 9: tasks.v1.Tasks.GetTask:output_type -> tasks.v1.GetTaskResponse
-	3,  // 10: tasks.v1.Tasks.CreateTask:output_type -> tasks.v1.CreateTaskResponse
-	5,  // 11: tasks.v1.Tasks.ListTasks:output_type -> tasks.v1.ListTasksResponse
-	9,  // 12: tasks.v1.Tasks.DeleteTask:output_type -> tasks.v1.DeleteTaskResponse
-	11, // 13: tasks.v1.Tasks.DoneTask:output_type -> tasks.v1.DoneTaskResponse
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	0,  // 4: tasks.v1.DoneTaskResponse.status:type_name -> tasks.v1.Status
+	6,  // 5: tasks.v1.Tasks.GetTask:input_type -> tasks.v1.GetTaskRequest
+	2,  // 6: tasks.v1.Tasks.CreateTask:input_type -> tasks.v1.CreateTaskRequest
+	4,  // 7: tasks.v1.Tasks.ListTasks:input_type -> tasks.v1.ListTasksRequest
+	8,  // 8: tasks.v1.Tasks.DeleteTask:input_type -> tasks.v1.DeleteTaskRequest
+	10, // 9: tasks.v1.Tasks.DoneTask:input_type -> tasks.v1.DoneTaskRequest
+	7,  // 10: tasks.v1.Tasks.GetTask:output_type -> tasks.v1.GetTaskResponse
+	3,  // 11: tasks.v1.Tasks.CreateTask:output_type -> tasks.v1.CreateTaskResponse
+	5,  // 12: tasks.v1.Tasks.ListTasks:output_type -> tasks.v1.ListTasksResponse
+	9,  // 13: tasks.v1.Tasks.DeleteTask:output_type -> tasks.v1.DeleteTaskResponse
+	11, // 14: tasks.v1.Tasks.DoneTask:output_type -> tasks.v1.DoneTaskResponse
+	10, // [10:15] is the sub-list for method output_type
+	5,  // [5:10] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_sync_final_boss_v1_tasks_proto_init() }

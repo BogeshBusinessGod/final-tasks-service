@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"final/internal/conv"
-	"final/internal/models"
 	tsk1 "final/pkg/proto/sync/final-boss/v1"
 
 	"github.com/jackc/pgx/v5"
@@ -27,7 +26,6 @@ func (s *service) GetTask(ctx context.Context, req *tsk1.GetTaskRequest) (*tsk1.
 			Title:   task.Title,
 			Content: task.Content,
 			Status:  conv.TaskStatusToProto(task.Status),
-			Done:    task.Status == models.StatusDone,
 		},
 	}, nil
 }

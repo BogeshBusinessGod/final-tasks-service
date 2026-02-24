@@ -23,8 +23,7 @@ CREATE TABLE tasks (
                        content    TEXT NOT NULL DEFAULT '', ---content - содержание заметки, сами записи.
 -- условно title - задача(купить машину)
 -- content - последовательность действий для решения задачи(взять налик, поехать в автосалон и т.д)
-                       status     TEXT NOT NULL DEFAULT 'new'
-                           CHECK (status IN ('new', 'in_progress', 'done', 'error')),
+                       status     TEXT NOT NULL DEFAULT 'new',
                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                        updated_at TIMESTAMPTZ
 );
